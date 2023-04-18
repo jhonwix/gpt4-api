@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Application</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      width: 50%;
+    }
+  </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-5">Chat Application</h1>
+        <form id="chat-form" class="mt-5">
+          <div class="form-group">
+            <label for="question">Your question:</label>
+            <input type="text" class="form-control" id="question" placeholder="Enter your question">
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <div id="response-container" class="mt-5" style="display:none;">
+          <h2>Response:</h2>
+          <p id="response"></p>
+        </div>
+      </div>
+  <script>
+    // Add your JavaScript code here
+    $(document).ready(() => {
+  const chatForm = $("#chat-form");
+  const questionInput = $("#question");
+  const responseContainer = $("#response-container");
+  const responseText = $("#response");
+
+  chatForm.submit(async (event) => {
+    event.preventDefault();
+    const question = questionInput.val();
+    if (!question) return;
+
+    try {
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: question }],
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+  console.log('Setting response text:', data.message.content); // Add this line
+  responseText.text(data.message.content);
+  responseContainer.show();
+      } else {
+        throw new Error("Failed to fetch response from the server");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  });
+});
+
+  </script>
+</body>
+</html>
